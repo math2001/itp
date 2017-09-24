@@ -65,10 +65,22 @@ function listTemplates() {
     return
 }
 
+function getLongestStringLength(strings) {
+    const length = strings[0].length
+    for (let string of strings) {
+        if (string.length > length) {
+            length = string.length
+        }
+    }
+    return length
+}
+
 function showVariables() {
     const variables = getVariables()
+    const varnames = Object.keys(variables)
+    const maxlength = getLongestStringLength(varnames)
     for (let varname in variables) {
-        console.info(`'${varname}': '${variables[varname]}'`)
+        console.info(`${varname.padEnd(maxlength)}: '${variables[varname]}'`)
     }
 }
 
