@@ -1,0 +1,12 @@
+{
+  "name": "template",
+  "version": "0.1.0",
+  "description": "A little template manager",
+  "main": "index.js",
+  "repository": "git@github.com:math2001/template",
+  "author": "Mathieu PATUREL <australie.p@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "node-cp": "^0.1.1"
+  }
+}
