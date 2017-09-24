@@ -7,14 +7,19 @@ const cp = require('node-cp')
 
 const TEMPLATES_DIR = homedir() + '/.templates/'
 
-function listTemplates(from) {
-    return readdirSync(from)
-}
-
 function main(files) {
-    if (files.indexOf('--help') !== 1) {
+    if (files.indexOf('--help') !== -1) {
         console.error('$ template files...')
         console.error('\nCopies files from ~/template/ to your current working directory')
+        console.error('If no arguments are specified, just lists the templates.')
+        return
+    }
+    if (files.length === 0) {
+        try {
+            console.log(readdirSync(TEMPLATES_DIR).join('\n'))
+        } catch (err) {
+            console.error(`${TEMPLATES_DIR} doesn't exists. Create it and put your templates in there.`)
+        }
         return
     }
     const CWD = process.cwd()
