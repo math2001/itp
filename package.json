@@ -7,9 +7,10 @@
   "author": "Mathieu PATUREL <australie.p@gmail.com>",
   "license": "MIT",
   "dependencies": {
+    "handlebars": "^4.0.10",
     "node-cp": "^0.1.1"
   },
   "bin": {
-      "template": "index.js"
+    "template": "index.js"
   }
 }
