@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 "use strict";
 
-const {readdirSync, readFile, writeFile} = require('fs')
+const {readdirSync, readFile, writeFile, existsSync} = require('fs')
 const {homedir} = require('os')
 const cp = require('node-cp')
 const handlebars = require('handlebars')
@@ -18,8 +18,29 @@ function getVariables() {
     }
 }
 
-function copyTemplate(file, to, variables) {
-    return new Promise(() => {
+function consumeBoolean(args, name) {
+    let index = args.indexOf('--' + name)
+    if (index === -1) return false
+    args.splice(index, 1)
+    return true
+}
+
+function parseArgs(argv) {
+    const args = Object.create(null)
+    args.help = consumeBoolean(argv, 'help')
+    args.force = consumeBoolean(argv, 'force')
+    args.files = Array.from(argv)
+    argv.splice(0, Infinity)
+
+    if (args.port !== null) args.port = parseInt(args.port)
+    return args
+}
+
+function copyTemplate(file, to, variables, force) {
+    return new Promise((resolve, reject) => {
+        if (!force && existsSync(to)) {
+            return reject(`${file} already exists. Use --force to overwrite.`)
+        }
         readFile(file, 'utf-8', (err, content) => {
             if (err) throw err
             writeFile(to, handlebars.compile(content)(variables), 'utf-8', err => {
@@ -29,8 +50,9 @@ function copyTemplate(file, to, variables) {
     })
 }
 
-function main(files) {
-    if (files.indexOf('--help') !== -1) {
+function main(args) {
+    args = parseArgs(args)
+    if (args.help) {
         console.error('$ template files...')
         console.error('\nCopies files from ~/template/ to your current working directory')
         console.error('\nIf no arguments are specified, just lists the templates.')
@@ -38,7 +60,7 @@ function main(files) {
         console.error(`about template variables`)
         return
     }
-    if (files.length === 0) {
+    if (args.files.length === 0) {
         try {
             console.log(readdirSync(TEMPLATES_DIR).join('\n'))
         } catch (err) {
@@ -47,8 +69,8 @@ function main(files) {
         return
     }
     const variables = getVariables()
-    for (let name of files) {
-        copyTemplate(TEMPLATES_DIR + name, CWD + '/' + name, variables).catch(err => {
+    for (let name of args.files) {
+        copyTemplate(TEMPLATES_DIR + name, CWD + '/' + name, variables, args.force).catch(err => {
             console.error(`Could not copy the template ${name}`)
             console.error(err)
         })
