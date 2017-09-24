@@ -47,12 +47,29 @@ function parseArgs(argv) {
     const args = Object.create(null)
     args.help = consumeBoolean(argv, 'help')
     args.force = consumeBoolean(argv, 'force')
+    args.list = consumeBoolean(argv, 'list')
     args.variables = consumeBoolean(argv, 'variables')
     args.files = Array.from(argv)
     argv.splice(0, Infinity)
 
     if (args.port !== null) args.port = parseInt(args.port)
     return args
+}
+
+function listTemplates() {
+    try {
+        console.info(readdirSync(TEMPLATES_DIR).join('\n'))
+    } catch (err) {
+        console.error(`${TEMPLATES_DIR} doesn't exists. Create it and put your templates in there.`)
+    }
+    return
+}
+
+function showVariables() {
+    const variables = getVariables()
+    for (let varname in variables) {
+        console.info(`'${varname}': '${variables[varname]}'`)
+    }
 }
 
 function copyTemplate(file, to, variables, force) {
@@ -71,25 +88,11 @@ function copyTemplate(file, to, variables, force) {
 
 function main(args) {
     args = parseArgs(args)
-    if (args.help) {
-        console.error(HELP_MESSAGE.trim())
-        return
-    }
-    if (args.variables) {
-        const variables = getVariables()
-        for (let varname in variables) {
-            console.info(`'${varname}': '${variables[varname]}'`)
-        }
-        return
-    }
-    if (args.files.length === 0) {
-        try {
-            console.log(readdirSync(TEMPLATES_DIR).join('\n'))
-        } catch (err) {
-            console.error(`${TEMPLATES_DIR} doesn't exists. Create it and put your templates in there.`)
-        }
-        return
-    }
+    if (args.help) console.error(HELP_MESSAGE.trim())
+    else if (args.variables) showVariables()
+    else if (args.list) listTemplates()
+    else if (args.files.length === 0) listTemplates(), showVariables()
+
     const variables = getVariables()
     for (let name of args.files) {
         copyTemplate(TEMPLATES_DIR + name, CWD + '/' + name, variables, args.force).catch(err => {
