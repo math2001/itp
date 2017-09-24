@@ -10,6 +10,25 @@ const CWD = process.cwd()
 
 const TEMPLATES_DIR = homedir() + '/.templates/'
 
+const HELP_MESSAGE = `
+$ itp [options] files...
+
+A little template manager with a cute name.
+
+Options:
+  --help      Show help message and exit
+  --variables Show variables for current directory
+  --list      Show available templates
+
+If no options or files are given, shows --variables and --list.
+
+Example:
+  $ itp
+  $ itp README.md .gitignore
+
+See https://github.com/math2001/itp for more informations.
+`
+
 function getVariables() {
     return {
         directory: path.basename(CWD),
@@ -53,11 +72,7 @@ function copyTemplate(file, to, variables, force) {
 function main(args) {
     args = parseArgs(args)
     if (args.help) {
-        console.error('$ template files...')
-        console.error('\nCopies files from ~/template/ to your current working directory')
-        console.error('\nIf no arguments are specified, just lists the templates.')
-        console.error('\nSee https://github.com/math2001/template for more information')
-        console.error(`about template variables`)
+        console.error(HELP_MESSAGE.trim())
         return
     }
     if (args.variables) {
