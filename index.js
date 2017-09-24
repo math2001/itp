@@ -3,7 +3,6 @@
 
 const {readdirSync, readFile, writeFile, existsSync} = require('fs')
 const {homedir} = require('os')
-const cp = require('node-cp')
 const handlebars = require('handlebars')
 const path = require('path')
 
@@ -29,6 +28,7 @@ function parseArgs(argv) {
     const args = Object.create(null)
     args.help = consumeBoolean(argv, 'help')
     args.force = consumeBoolean(argv, 'force')
+    args.variables = consumeBoolean(argv, 'variables')
     args.files = Array.from(argv)
     argv.splice(0, Infinity)
 
@@ -58,6 +58,13 @@ function main(args) {
         console.error('\nIf no arguments are specified, just lists the templates.')
         console.error('\nSee https://github.com/math2001/template for more information')
         console.error(`about template variables`)
+        return
+    }
+    if (args.variables) {
+        const variables = getVariables()
+        for (let varname in variables) {
+            console.info(`'${varname}': '${variables[varname]}'`)
+        }
         return
     }
     if (args.files.length === 0) {
